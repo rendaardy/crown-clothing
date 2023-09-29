@@ -34,11 +34,10 @@ jobs:
           version: 8.8.0
 
       - name: Build step
-        run: "pnpm install && pnpm run build"
+        run: "pnpm install && pnpm run build && rm -rf node_modules styled-system"
 
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
           project: crown-clothing
-          entrypoint: ../server.ts
-          root: dist
+          entrypoint: ./server.ts
