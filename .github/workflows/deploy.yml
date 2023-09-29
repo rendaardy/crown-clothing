@@ -39,5 +39,6 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "crown-clothing"
-          entrypoint: "./server.ts"
+          project: crown-clothing
+          entrypoint: ../server.ts
+          root: dist
