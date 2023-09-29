@@ -4,8 +4,6 @@ import { assertEquals } from "https://deno.land/std@0.203.0/assert/mod.ts";
 
 const app = new Hono();
 
-app.use("/", serveStatic({ path: "./dist/index.html" }));
-
 app.get("/api/categories", (c) => {
   const categories = [
     {
@@ -48,6 +46,8 @@ app.get("/api/categories", (c) => {
     },
   });
 });
+
+app.use("/*", serveStatic({ root: "./dist" }));
 
 Deno.serve(app.fetch);
 
