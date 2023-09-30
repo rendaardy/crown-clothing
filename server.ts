@@ -2,6 +2,8 @@ import { Hono } from "https://deno.land/x/hono@v3.7.2/mod.ts";
 import { serveStatic } from "https://deno.land/x/hono@v3.7.2/middleware.ts";
 import { assertEquals } from "https://deno.land/std@0.203.0/assert/mod.ts";
 
+import { getMimeType } from "./src/utils/mime.ts";
+
 const app = new Hono();
 
 app.get("/api/categories", (c) => {
@@ -47,7 +49,49 @@ app.get("/api/categories", (c) => {
   });
 });
 
-app.use("/*", serveStatic({ root: "./dist" }));
+app.get("/", async (c) => {
+  const url = new URL(c.req.url);
+
+  const filename = decodeURI(url.pathname) + "index.html";
+  const path = `./dist${filename}`;
+  const file = await Deno.open(path);
+
+  if (file) {
+    c.header("Content-Type", getMimeType(filename));
+
+    return c.body(file.readable);
+  } else {
+    c.status(404);
+
+    return c.text("file not found");
+  }
+});
+
+app.get("/*", async (c) => {
+  const url = new URL(c.req.url);
+
+  const filename = decodeURI(url.pathname);
+  const path = `./dist${filename}`;
+
+  try {
+    // Serve static files
+    const file = await Deno.open(path);
+
+    if (file) {
+      c.header("Content-Type", getMimeType(filename));
+
+      return c.body(file.readable);
+    } else {
+      return c.redirect("/");
+    }
+  } catch (_error) {
+    // If the file doesn't exist, serve the index and let the client router handle the rest
+    const file = await Deno.open("./dist/index.html");
+
+    c.header("Content-Type", getMimeType("index.html"));
+    return c.body(file.readable);
+  }
+});
 
 Deno.serve(app.fetch);
 
