@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { Outlet, Link, useLoaderData, useSubmit } from "react-router-dom";
 
 import { useCartState, useCartItems } from "#/context/cart-context.jsx";
@@ -13,9 +13,9 @@ export function HomeLayout() {
   const [open, setOpen] = useCartState();
   const { items } = useCartItems();
 
-  const handleBodyClick = () => {
-    setOpen(false);
-  };
+  const handleBodyClick = useCallback(() => {
+    setOpen(() => false);
+  }, []);
 
   useEffect(() => {
     document.body.addEventListener("click", handleBodyClick);
